@@ -25,7 +25,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.1.0",
-    "markmap-lib": "^0.10.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.0.5"
   },
@@ -40,6 +39,7 @@
   "dependencies": {
     "@semo/core": "^1.5.4",
     "chokidar": "^3.4.3",
+    "markmap-lib": "^0.10.1",
     "open": "^7.3.0",
     "semo-plugin-serve": "^1.2.9"
   },
