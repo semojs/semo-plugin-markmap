@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@semo/core": "^1.5.4",
+    "axios": "^0.21.0",
     "chokidar": "^3.4.3",
     "markmap-lib": "^0.10.1",
     "open": "^7.3.0",
