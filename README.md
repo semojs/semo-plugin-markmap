@@ -5,10 +5,26 @@ This is a tool to convert markdown to mindmap, based on [markmap](https://github
 
 ## Usage
 
+### Basic
+
 ```
 npm i -g @semo/cli semo-plugin-markmap
-semo mm abc.md
+semo markmap test.md
+semo mm test.md
 ```
+
+### Url
+
+```
+semo mm https://raw.githubusercontent.com/semojs/semo-plugin-markmap/master/test.md
+```
+
+### Pip
+
+```
+echo "# abc" | semo mm
+```
+
 
 ## Licence
 
