@@ -17,8 +17,10 @@ export const aliases = 'mm'
 // export const middleware = (argv) => {}
 
 import {
-  transform, getUsedAssets, fillTemplate,
+  Transformer, fillTemplate,
 } from 'markmap-lib'
+
+const transformer = new Transformer()
 
 
 function watch(input) {
@@ -33,7 +35,7 @@ function watch(input) {
   };
   async function update() {
     const content = await fs.readFile(input, 'utf8');
-    const result = transform(content || '');
+    const result = transformer.transform(content || '');
     data = { ts: Date.now(), ...result };
     events.emit('updated');
     promise = null;
@@ -122,12 +124,12 @@ export const handler = async function (argv: any) {
       output = 'markmap.html'
     }
 
-    const { root, features } = transform(content || '')
+    const { root, features } = transformer.transform(content || '')
 
     const TOOLBAR_VERSION = '0.1.3'
     const TOOLBAR_CSS = `npm/markmap-toolbar@${TOOLBAR_VERSION}/dist/style.min.css`
     const TOOLBAR_JS = `npm/markmap-toolbar@${TOOLBAR_VERSION}/dist/index.umd.min.js`
-    let assets = getUsedAssets(features)
+    let assets = transformer.getUsedAssets(features)
 
     assets = {
       styles: [
