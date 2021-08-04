@@ -70,6 +70,103 @@ function watch(input) {
   }
 }
 
+const renderShortcut = new Function(`\
+
+const hideAll = (target) => {
+  target.p = {
+    ...target.p,
+    f: true,
+  };
+
+  target.c && target.c.forEach(t => {
+    hideAll(t);
+  });
+};
+
+const showAll = (target) => {
+  target.p = {
+    ...target.p,
+    f: false,
+  };
+
+  target.c && target.c.forEach(t => {
+    showAll(t);
+  });
+};
+
+const expandLevel = (target, level = 1) => {
+  if (level <= 0) {
+    return;
+  }
+  level--;
+
+  target.p = {
+    ...target.p,
+    f: false,
+  };
+
+  target.c && target.c.forEach(t => {
+    expandLevel(t, level);
+  });
+};
+document.addEventListener(
+  'keydown',
+  async function (e) {
+    console.log(e.keyCode)
+    switch (e.keyCode) {
+      case 32:
+        mm && (await mm.fit());
+        break;
+      case 48:
+        hideAll(mm.state.data);
+        mm.setData(mm.state.data);
+
+        break;
+      case 57:
+        showAll(mm.state.data);
+        mm.setData(mm.state.data);
+
+        break;
+      case 49:
+        hideAll(mm.state.data);
+        expandLevel(mm.state.data, 1);
+        mm.setData(mm.state.data);
+
+        break;
+      case 50:
+        hideAll(mm.state.data);
+        expandLevel(mm.state.data, 2);
+        mm.setData(mm.state.data);
+
+        break;
+      case 51:
+        hideAll(mm.state.data);
+        expandLevel(mm.state.data, 3);
+        mm.setData(mm.state.data);
+
+        break;
+      case 187:
+        await mm.rescale(1.25);
+        break;
+      case 189:
+        await mm.rescale(0.8);
+        break;
+
+      case 70:
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else {
+          document.documentElement.requestFullscreen();
+        }
+        break;
+    }
+  },
+  false
+);
+
+
+`)
+
 const renderToolbar = new Function(`\
 const toolbar = new markmap.Toolbar();
 toolbar.setItems(['zoomIn', 'zoomOut', 'fit', 'full'])
@@ -95,7 +192,7 @@ export const builder = function (yargs: any) {
 
 export const handler = async function (argv: any) {
   const Utils:UtilsType = argv.$semo.Utils
-  
+
   try {
     let content
     if (argv.input) {
@@ -158,11 +255,20 @@ export const handler = async function (argv: any) {
             getParams: () => [renderToolbar],
           },
         },
+        {
+          type: 'iife',
+          data: {
+            fn: (r) => {
+              setTimeout(r, 1);
+            },
+            getParams: () => [renderShortcut],
+          },
+        },
       ],
     };
 
     let html = fillTemplate(root, assets)
-    
+
     if (argv.watch && argv.input && !argv.input.startsWith('http') && existsSync(argv.input)) {
       // add watcher
       html += `<script>
