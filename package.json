@@ -1,6 +1,6 @@
 {
   "name": "semo-plugin-markmap",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "A Semo plugin to convert markdown to mindmap, based on markmap.",
   "keywords": [
     "semo",
