@@ -1,22 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": ["es6"],
-    "declaration": true,
-    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
     "outDir": "./lib",
     "rootDir": "./src",
-    "noImplicitAny": false,
-    "strictNullChecks": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noImplicitReturns": true,
-    "moduleResolution": "node",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
     "resolveJsonModule": true,
-    "typeRoots": ["src/@types", "./node_modules/@types/"],
-    "esModuleInterop": true
+    "noImplicitAny": false,
+
+    "composite": true,
+    "baseUrl": "."
   },
-  "include": ["./src"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "lib", "**/*.config.ts", "*.config.ts"]
 }

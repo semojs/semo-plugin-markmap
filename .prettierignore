@@ -1,0 +1,7 @@
+node_modules
+lib
+coverage
+packages/*/lib
+pnpm-lock.yaml
+.env
+coverage

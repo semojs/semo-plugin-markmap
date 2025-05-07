@@ -1,4 +1,3 @@
-
 typescript: true
 
 commandDir: lib/commands
@@ -7,3 +6,6 @@ extendDir: lib/extends
 extendMakeDir: src/extends
 hookDir: lib/hooks
 hookMakeDir: src/hooks
+
+disableCoreCommand: true
+disableGlobalPlugins: true

@@ -6,4 +6,15 @@ docs
 .eslintignore
 .eslintrc.js
 tsconfig.json
+.prettierrc
+.prettierignore
+.ncurc.yml
+coverage
+.husky/*
+.github/*
+tsconfig.tsbuildinfo
+tests/*
+lib/**/*.map
+.lintstagedrc
+eslint.config.ts
 test.md
