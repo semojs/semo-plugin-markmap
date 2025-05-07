@@ -8,7 +8,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import getStdin from 'get-stdin'
 import { Transformer } from 'markmap-lib'
 import { fillTemplate } from 'markmap-render'
-import { info, md5 } from '@semo/core'
+import { error, info, md5 } from '@semo/core'
 import { ensureDirSync } from 'fs-extra'
 
 const API = axios.create()
@@ -393,6 +393,11 @@ export const handler = async function (argv: any) {
       }
     }
 
+    if (!content) {
+      error('Empty input detected.')
+      return
+    }
+
     let output
     if (argv.output) {
       output =
@@ -408,7 +413,6 @@ export const handler = async function (argv: any) {
     }
 
     const { root, features } = transformer.transform(content || '')
-
     const TOOLBAR_VERSION = '0.18.10'
     const TOOLBAR_CSS = `npm/markmap-toolbar@${TOOLBAR_VERSION}/dist/style.min.css`
     const TOOLBAR_JS = `npm/markmap-toolbar@${TOOLBAR_VERSION}/dist/index.min.js`
@@ -464,45 +468,45 @@ export const handler = async function (argv: any) {
                 'position:absolute;top:20px;right:20px;width:30px;height:30px;border-radius:50%;background:transparent;border:0;font-size:16px;cursor:pointer;z-index:1000;'
               document.body.appendChild(helpBtn)
 
-              // 创建模态框
+              // Create modal dialog
               const modal = document.createElement('div')
               modal.style.cssText =
                 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1001;'
 
-              // 创建模态框内容
+              // Create modal content
               const modalContent = document.createElement('div')
               modalContent.style.cssText =
                 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-color);color:var(--text-color);padding:20px;border-radius:8px;max-width:600px;width:90%;'
 
-              // 创建表格
+              // Create table
               const table = document.createElement('table')
               table.style.cssText = 'width:100%;border-collapse:collapse;'
 
-              // 添加表头
+              // Add table header
               const thead = document.createElement('thead')
               thead.innerHTML =
-                '<tr style="border-bottom:2px solid #ddd;"><th style="padding:10px;text-align:left;width:200px;">快捷键 / Shortcut</th><th style="padding:10px;text-align:left;">功能描述 / Description</th></tr>'
+                '<tr style="border-bottom:2px solid #ddd;"><th style="padding:10px;text-align:left;width:200px;">Shortcut</th><th style="padding:10px;text-align:left;">Description</th></tr>'
               table.appendChild(thead)
 
-              // 添加表格内容
+              // Add table content
               const tbody = document.createElement('tbody')
               const shortcuts = [
-                ['0-5', '设置思维导图层级 / Set mindmap level'],
-                ['9', '展开全部 / Expand all'],
-                ['0', '折叠全部 / Collapse all'],
-                ['.', '聚焦进入 / Focus in'],
-                [',', '聚焦退出 / Focus out'],
-                ['b', '重置显示全部 / Reset to show all'],
-                ['p', '聚焦上一个 / Focus previous'],
-                ['n', '聚焦下一个 / Focus next'],
-                ['h', '收起到上一层级 / Collapse to previous level'],
-                ['l', '展开到下一层级 / Expand to next level'],
-                ['j', '逐步展开 / Expand step by step'],
-                ['k', '逐步收起 / Collapse step by step'],
-                ['f', '全屏 / Full screen'],
-                ['+', '放大 / Zoom in'],
-                ['-', '缩小 / Zoom out'],
-                ['空格 / Space', '适应屏幕 / Fit to screen'],
+                ['0-5', 'Set mindmap level'],
+                ['9', 'Expand all'],
+                ['0', 'Collapse all'],
+                ['.', 'Focus in'],
+                [',', 'Focus out'],
+                ['b', 'Reset to show all'],
+                ['p', 'Focus previous'],
+                ['n', 'Focus next'],
+                ['h', 'Collapse to previous level'],
+                ['l', 'Expand to next level'],
+                ['j', 'Expand step by step'],
+                ['k', 'Collapse step by step'],
+                ['f', 'Full screen'],
+                ['+', 'Zoom in'],
+                ['-', 'Zoom out'],
+                ['Space', 'Fit to screen'],
               ]
 
               shortcuts.forEach(([key, desc]) => {
@@ -517,14 +521,14 @@ export const handler = async function (argv: any) {
               modal.appendChild(modalContent)
               document.body.appendChild(modal)
 
-              // 添加关闭按钮
+              // Add close button
               const closeBtn = document.createElement('button')
               closeBtn.textContent = '✖️'
               closeBtn.style.cssText =
                 'position:absolute;top:20px;right:20px;border:none;background:none;font-size:20px;cursor:pointer;'
               modalContent.appendChild(closeBtn)
 
-              // 绑定事件
+              // Bind events
               helpBtn.onclick = () => (modal.style.display = 'block')
               closeBtn.onclick = () => (modal.style.display = 'none')
               modal.onclick = (e) => {
@@ -641,36 +645,87 @@ export const handler = async function (argv: any) {
 
     let html = fillTemplate(root, assets)
 
-    if (
-      argv.watch &&
-      argv.input &&
-      !argv.input.startsWith('http') &&
-      existsSync(argv.input)
-    ) {
-      // add watcher
-      html += `<script>
-      {
-        let ts = 0;
+    if (argv.watch) {
+      if (
+        argv.input &&
+        !argv.input.startsWith('http') &&
+        existsSync(argv.input)
+      ) {
+        // add watcher
+        html += `<script>
+        {
+          let ts = 0;
 
-        window.stack = []
-        window.pointerStack = []
-        window.pointer = null
-        window.currentLevel = 0
-        window.totalLevel = 0
-        window.originalRoot = null
-        window.originalTotalLevel = 0
+          window.stack = []
+          window.pointerStack = []
+          window.pointer = null
+          window.currentLevel = 0
+          window.totalLevel = 0
+          window.originalRoot = null
+          window.originalTotalLevel = 0
 
-        function maxDepth(obj) {
-            return obj.children && obj.children.length > 0
-                ? 1 + Math.max(...obj.children.map(maxDepth))
-                : 1;
+          function maxDepth(obj) {
+              return obj.children && obj.children.length > 0
+                  ? 1 + Math.max(...obj.children.map(maxDepth))
+                  : 1;
+          }
+
+
+          function refresh() {
+            fetch(\`/data?ts=\${ts}\`).then(res => res.json()).then(res => {
+              if (res.ts && res.ts > ts) {
+                ts = res.ts;
+                window.root = res.root
+                window.totalLevel = maxDepth(res.root)
+                window.originalTotalLevel = totalLevel
+                window.currentLevel = totalLevel - 1
+                window.originalRoot = res.root
+                mm.setData(res.root, {
+                  pan: true,
+                  maxWidth: 400
+                });
+                mm.fit();
+              }
+              setTimeout(refresh, 300);
+            });
+          }
+          refresh();
         }
+        </script>`
+        const watcher = watch(argv.input)
+        argv.addRoutes = await startServer({
+          openBrowser: argv.open,
+          addRoutes: (router) => {
+            router.get('/', (ctx) => {
+              ctx.body = html
+            })
+
+            router.get('/data', async (ctx) => {
+              ctx.body = await watcher.getChanged(ctx.query.ts)
+            })
+          },
+        })
+      } else {
+        // add watcher
+        html += `<script>
+        {
+          window.stack = []
+          window.pointerStack = []
+          window.pointer = null
+          window.currentLevel = 0
+          window.totalLevel = 0
+          window.originalRoot = null
+          window.originalTotalLevel = 0
+
+          function maxDepth(obj) {
+              return obj.children && obj.children.length > 0
+                  ? 1 + Math.max(...obj.children.map(maxDepth))
+                  : 1;
+          }
 
 
-        function refresh() {
-          fetch(\`/data?ts=\${ts}\`).then(res => res.json()).then(res => {
-            if (res.ts && res.ts > ts) {
-              ts = res.ts;
+          function refresh() {
+            fetch('/data').then(res => res.json()).then(res => {
               window.root = res.root
               window.totalLevel = maxDepth(res.root)
               window.originalTotalLevel = totalLevel
@@ -681,27 +736,27 @@ export const handler = async function (argv: any) {
                 maxWidth: 400
               });
               mm.fit();
-            }
-            setTimeout(refresh, 300);
-          });
+            });
+          }
+          refresh();
         }
-        refresh();
+        </script>`
+        // Simple server
+        argv.addRoutes = await startServer({
+          openBrowser: argv.open,
+          addRoutes: (router) => {
+            router.get('/', (ctx) => {
+              ctx.body = html
+            })
+            router.get('/data', async (ctx) => {
+              ctx.body = {
+                root,
+              }
+            })
+          },
+        })
       }
-      </script>`
 
-      const watcher = watch(argv.input)
-      argv.addRoutes = await startServer({
-        openBrowser: argv.open,
-        addRoutes: (router) => {
-          router.get('/', (ctx) => {
-            ctx.body = html
-          })
-
-          router.get('/data', async (ctx) => {
-            ctx.body = await watcher.getChanged(ctx.query.ts)
-          })
-        },
-      })
       return false
     } else {
       ensureDirSync(path.dirname(output))
