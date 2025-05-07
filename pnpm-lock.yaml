@@ -20,6 +20,9 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      get-stdin:
+        specifier: ^9.0.0
+        version: 9.0.0
       markmap-common:
         specifier: ^0.18.9
         version: 0.18.9

@@ -5,6 +5,11 @@ import { EventEmitter } from 'events'
 import chokidar from 'chokidar'
 import { startServer } from 'semo-plugin-serve'
 import axios, { AxiosRequestConfig } from 'axios'
+import getStdin from 'get-stdin'
+import { Transformer } from 'markmap-lib'
+import { fillTemplate } from 'markmap-render'
+import { info, md5 } from '@semo/core'
+import { ensureDirSync } from 'fs-extra'
 
 const API = axios.create()
 
@@ -27,11 +32,6 @@ export const builder = function (yargs: any) {
     describe: 'Open in browser',
   })
 }
-
-import { Transformer } from 'markmap-lib'
-import { fillTemplate } from 'markmap-render'
-import { info, md5 } from '@semo/core'
-import { ensureDirSync } from 'fs-extra'
 
 const transformer = new Transformer()
 
@@ -385,6 +385,12 @@ export const handler = async function (argv: any) {
     } else if (argv.$input) {
       content = argv.$input
       argv.input = 'pipe-input'
+    } else {
+      const input = await getStdin()
+      if (input) {
+        content = input
+        argv.input = 'pipe-input'
+      }
     }
 
     let output
@@ -395,7 +401,7 @@ export const handler = async function (argv: any) {
       output = path.resolve(
         process.env.HOME,
         `.${argv.scriptName}/cache/semo-plugin-markmap`,
-        md5(argv.input) + '.html'
+        md5(content) + '.html'
       )
     } else {
       output = 'markmap.html'
